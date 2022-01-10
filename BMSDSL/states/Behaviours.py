@@ -40,8 +40,8 @@
 
 """
 
-import State.State as State
-import RunErrorState.RunError as RunError
+from BMSDSL.states.State import State
+from BMSDSL.states.RunErrorState import DSLRunError
  
 
 class Behaviour(State):
@@ -55,6 +55,6 @@ class Behaviour(State):
     
     def transition(self):
         if (len(self.behaviours)):
-            return True, self.markers
+            return False, self.markers
         else:
-            return False, RunError("No markers defined")
+            return True, DSLRunError("No markers defined")

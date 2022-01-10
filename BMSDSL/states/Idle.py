@@ -20,8 +20,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-import State.State as State
-import RunErrorState.RunError as RunError
+from BMSDSL.states.State import State
+from BMSDSL.states.RunErrorState import DSLRunError
+ 
 
 class Idle(State):
     
@@ -30,9 +31,10 @@ class Idle(State):
     def __init__(self, profession):
         self.name = "Idle"
         self.profession = profession
+        
     def transition(self):
         if (self.profession):
-            return True, self.profession
+            return False, self.profession
         else:
-            return False, RunError("No profession defined")
+            return True, DSLRunError("No profession defined")
     

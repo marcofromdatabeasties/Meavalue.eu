@@ -21,14 +21,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-import State.State as State
+from BMSDSL.states.State import State
 
-class RunErrorState(State):
+class DSLRunError(State):
+
     message = ""
 
-    def __init__(self, message):
-        
+    def __init__(self, message):        
         self.name = "Conditional error"
         self.message = f"Conditional error {message}"
+
     def transition(self):
         return True, self

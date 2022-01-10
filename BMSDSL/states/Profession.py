@@ -42,8 +42,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-import State.State as State
-import RunErrorState.RunError as RunError
+from BMSDSL.states.State import State
+from BMSDSL.states.RunErrorState import DSLRunError
  
 
 class Profession(State):
@@ -56,7 +56,8 @@ class Profession(State):
     
     def transition(self):
         if (len(self.behaviours)):
-            return True, self.behaviours
+            return False, self.behaviours
         else:
-            return False, RunError("No behaviours defined")
+            error = DSLRunError("No behaviours defined")
+            return True, error
         
