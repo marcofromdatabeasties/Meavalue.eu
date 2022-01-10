@@ -4,7 +4,7 @@
 
     Main.py at this level does nothing.
 
-    Copyright (C) Mon Jan 10 10:28:08 2022  @author: ubuntu
+    Copyright (C) Mon Jan 10 10:28:08 2022  @author: Marco Dumont
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
