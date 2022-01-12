@@ -23,20 +23,35 @@
 import unittest
 from BMSDSL.states.Profession import Profession
 from BMSDSL.states.Behaviours import Behaviour
+from BMSDSL.states.Markers import Marker
 
 class TestNProfession(unittest.TestCase):
     def test_Profession_transition_No_Behaviours(self):
-        prof = Profession("Test", {})
+        prof = Profession("Test", {}, {})
         error, dummy = prof.transition()
         
+        #expected is an error
         self.assertEqual(error, True)
     
     def test_Profession_transition_Behaviours(self):
-        prof = Profession("Test", {"behav": Behaviour("behav", {}, {})})
+        prof = Profession("Test", {"behav": Behaviour("behav", {}, {})}, {})
         error, dummy = prof.transition()
-        
+        #expected is no error
         self.assertEqual(error, False)
     
-    
+class TestBehaviour(unittest.TestCase):
+    def test_Behaviour_transition_No_Markers(self):
+        beh = Behaviour("Test", {}, {})
+        error, dummy = beh.transition()
+        #expected is an error
+        self.assertEqual(error, True)
+
+    def test_Behaviour_transition_Markers(self):
+        beh = Behaviour("Test", {"marker" : Marker("mark", {}, {})}, {})
+        error, dummy = beh.transition()
+        #expected is an error
+        self.assertEqual(error, False)
+
+        
 if __name__ == '__main__':
     unittest.main()

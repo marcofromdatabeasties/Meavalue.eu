@@ -45,16 +45,15 @@ from BMSDSL.states.RunErrorState import DSLRunError
  
 
 class Behaviour(State):
-    markers = {}
-    sources = {}
     
     def __init__(self, name, markers, sources):
         self.name = name
         self.markers = markers
+        self.sources = sources
         self.tag = "Behaviour:"
     
     def transition(self):
-        if (len(self.behaviours)):
+        if (len(self.markers)):
             return False, self.markers
         else:
             return True, DSLRunError("No markers defined")
