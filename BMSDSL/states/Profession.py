@@ -50,14 +50,14 @@ class Profession(State):
     behaviours = {}
     sources = {}
     
-    def __init__(self, name, behaviours, sources):
+    def __init__(self, name, behaviours = {}, sources={}):
         self.name = name
         self.behaviours = behaviours
         self.sources = sources
         self.tag = "Profession:"
     
     #transition() return the behaviours associated with this profession in the
-    #DSl. At least one behaviour should be present. When one is supplied while
+    #DSl. At least one behaviour should be present. When none is supplied while
     #processing a error is returned.
     
     def transition(self):
@@ -66,4 +66,5 @@ class Profession(State):
         else:
             error = DSLRunError("No behaviours defined")
             return True, error
-        
+    def addBehaviour(self, behaviour):
+        self.behaviours[behaviour.giveName()] = behaviour 

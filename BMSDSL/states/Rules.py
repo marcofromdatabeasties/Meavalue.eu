@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 
- Base class for the states of the DSL states help in parsing the .bms files.
+ Atoms represent a value (measurement), logical function (predicate), Rule 
+ ( f.i. Takagi-Sugeno / Mamdani) or,  and, or and not. As the most
+ simple building blocks of a measurement. 
 
-    Copyright (C) Mon Jan 10 11:13:35 2022  @author: Marco Dumont
+    Copyright (C) Mon Jan 24 12:14:57 2022  @author: Marco Dumont
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,16 +22,20 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+from BMSDSL.states.State import State
+from BMSDSL.states.RunErrorState import DSLRunError
 
-class State:
-    name = ""
-    tag = ""
-    
+
+class Rule(State):
+    def __init__(self, rule):
+        self.rule = rule
+        self.tag = "Rule:"
+        
     def transition(self):
-        print ("This should not be shown")
-        #no code yet
-    def isState(self, tag):
-        return self.tag == tag
-    
-    def giveName(self):
-        return self.name
+        if (len(self.rules)):
+            return False, self.rules
+        else:
+            error = DSLRunError("No behaviours defined")
+            return True, error
+
+        

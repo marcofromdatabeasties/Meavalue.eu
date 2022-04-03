@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 
- <one line to give the program's name and a brief idea of what it does.>
+ The purpose of this file is to test states and transitions
 
-    Copyright (C) Mon Jan 10 20:51:21 2022  @author: ubuntu
+    Copyright (C) Mon Jan 10 20:51:21 2022  @author: Marco Dumont
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ import unittest
 from BMSDSL.states.Profession import Profession
 from BMSDSL.states.Behaviours import Behaviour
 from BMSDSL.states.Markers import Marker
+from BMSDSL.states.Quality import QualityAttribute
+from BMSDSL.states.Rules import Rule
 
 class TestNProfession(unittest.TestCase):
     def test_Profession_transition_No_Behaviours(self):
@@ -35,7 +37,7 @@ class TestNProfession(unittest.TestCase):
     
     def test_Profession_transition_Behaviours(self):
         prof = Profession("Test", {"behav": Behaviour("behav", {}, {})}, {})
-        error, dummy = prof.transition()
+        error, dummy = prof.transition()                                    
         #expected is no error
         self.assertEqual(error, False)
     
@@ -49,8 +51,35 @@ class TestBehaviour(unittest.TestCase):
     def test_Behaviour_transition_Markers(self):
         beh = Behaviour("Test", {"marker" : Marker("mark", {}, {})}, {})
         error, dummy = beh.transition()
-        #expected is an error
+        #expected is no error
         self.assertEqual(error, False)
+
+class TestMarkers(unittest.TestCase):
+    def test_Markers_transition_No_QA(self):
+        beh = Marker("Marker", {}, {})
+        error, dummy = beh.transition()
+        #expected is an error
+        self.assertEqual(error, True)
+
+    def test_Markers_transition_QA(self):
+        beh = Marker("Test", {"Marker" : QualityAttribute("QA", {}, {})}, {})
+        error, dummy = beh.transition() 
+        #expected is no error
+        self.assertEqual(error, False)
+        
+class TestQualityAttribute(unittest.TestCase):
+    def test_QualityAttribute_transition_No_Rule(self):
+        beh = QualityAttribute("QA", {}, {})
+        error, dummy = beh.transition()
+        #expected is an error
+        self.assertEqual(error, True)
+
+    def test_QualityAttribute_transition_Rule(self):
+        beh = QualityAttribute("Test", {"QA" : Rule("IF Rule THEN Rule_the_world IS high")}, {})
+        error, dummy = beh.transition()
+        #expected is no error
+        self.assertEqual(error, False)
+
 
         
 if __name__ == '__main__':

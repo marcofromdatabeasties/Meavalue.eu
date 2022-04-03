@@ -13,12 +13,12 @@
                      QualityAttribute: "Coupling"
                          Source: 
                              APA: "{APA reference}"
-                         Measurement: "Intense Coupling" ^ "External Coupling"
-                             Source: 
+                         Rule: "IF (Intense_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)"
+                            Source: 
                                  APA: "{APA reference}"
                          ....
                      QualityAttribute: "Number of lines in Class"
-                         Measurement: "Lines in Class"
+                         
                          ....
                     QualityAttribute: ""
                     .....
@@ -46,14 +46,19 @@ from BMSDSL.states.RunErrorState import DSLRunError
 
 class Behaviour(State):
     
-    def __init__(self, name, markers, sources):
+    def __init__(self, name, markers = {}, sources= {}):
         self.name = name
         self.markers = markers
         self.sources = sources
         self.tag = "Behaviour:"
-    
+    #transition() return the markers associated with this profession in the
+    #DSl. At least one marker should be present. When none is supplied while
+    #processing a error is returned.
     def transition(self):
         if (len(self.markers)):
             return False, self.markers
         else:
             return True, DSLRunError("No markers defined")
+        
+    def addMarker(self, marker):
+        self.markers[marker.giveName()] = marker

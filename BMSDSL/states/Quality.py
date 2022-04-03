@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 
- A marker describes observable behaviour and is therefore a subset of behaviours.
+ This state holds the QualityAttribute.
 
-    Copyright (C) Wed Jan 12 15:38:17 2022  @author: ubuntu
+    Copyright (C) Wed Jan 12 16:07:51 2022  @author: Marco Dumont
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,25 +20,24 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+
 from BMSDSL.states.State import State
 from BMSDSL.states.RunErrorState import DSLRunError
 
-class Marker (State):
-    
-    def __init__(self, name, qualityAttributes={}, sources={}):
+class QualityAttribute(State):
+    def __init__(self, name, rule="", sources={}):
         self.name = name
-        self.qualityAttributes = qualityAttributes
+        self.rule = rule
         self.sources = sources
-        self.tag = "Marker:"
-      
-    #transition() return the QA's associated with this profession in the
-    #DSl. At least one QA should be present. When none is supplied while
-    #processing a error is returned.    
+        self.tag = "QualityAttribute:"
+    #transition() return the measurements associated with this profession in the
+    #DSl. At least one QualityAttribute should be present. When none is supplied while
+    #processing a error is returned.
     def transition(self):
-        if (len(self.qualityAttributes)):
-            return False, self.qualityAttributes
+        if (self.rule != None):
+            return False, self.rule
         else:
-            return True, DSLRunError("No markers defined")
+            return True, DSLRunError("No measurements defined")
         
-    def addQualityAttribute(self, qualityAttribute):
-        self.qualityAttributes[qualityAttribute.giveName()] = qualityAttribute
+    def addRule(self, rule):
+        self.rule = rule
