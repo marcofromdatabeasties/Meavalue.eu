@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 
- Base class for the states of the DSL states help in parsing the .bms files.
+ <one line to give the program's name and a brief idea of what it does.>
 
-    Copyright (C) Mon Jan 10 11:13:35 2022  @author: Marco Dumont
+    Copyright (C) Mon Apr 11 10:50:44 2022  @author: ubuntu
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,22 +20,3 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-
-class State:
-    
-    def __init__(self):
-        self.name = ""
-        self.tag = ""
-        self.sources = []
-    
-    def transition(self):
-        print ("This should not be shown")
-        #no code yet
-    def isState(self, tag):
-        return self.tag == self.tag
-    
-    def giveName(self):
-        return self.name
-    
-    def addSource(self, apa):
-        self.sources.append(apa)

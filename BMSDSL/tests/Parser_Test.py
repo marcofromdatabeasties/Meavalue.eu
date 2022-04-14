@@ -55,6 +55,7 @@ class TestBMSDSLParser(unittest.TestCase):
         error = parser._snifAndProcessProfession(testContent[0], testContent, 0) 
         self.assertEqual(error, False, "Returns no error")
         self.assertEqual(parser.currentProfession.name , "\"Programmer\"", "Should be programmer")
+
         
     def test_SniffingForBehaviour(self):
         parser = BMSDSLParser()
@@ -94,14 +95,33 @@ class TestBMSDSLParser(unittest.TestCase):
         parser.currentProfession = Profession("Test of behaviour")
         parser.currentBehaviour = Behaviour("Test of behaviour")
         parser.currentMarker = Marker("Test of marker")
-        parser.currentQualityAttribute = QualityAttribute("Test of QA")
+        #Coupling for consistency
+        parser.currentQualityAttribute = QualityAttribute("Coupling")
         
         testContent = parser.splitStringInStates(self.raw)
         
         error, txt = parser._snifAndProcessRule(testContent[16], testContent, 16) 
         self.assertEqual(error, False, "Returns no error")
-        self.assertEqual(parser.currentRule.rule, '"IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)"', "Should be IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)" )
-        self.assertEqual(parser.currentQualityAttribute.rule.rule, '"IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)"', "Should be IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)" )
+        self.assertEqual(parser.currentQualityAttribute.rules[0].rule, 
+                         '"IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)"', '"Should be IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (Coupling IS high)"' )
+        
+        #not so happy day tests
+    
+    def test_RuleDoesNotResolveQA(self):
+        parser1 = BMSDSLParser()
+        parser1.currentProfession = Profession("Test of behaviour")
+        parser1.currentBehaviour = Behaviour("Test of behaviour")
+        parser1.currentMarker = Marker("Test of marker")
+        #Coupling is not consistent
+        parser1.currentQualityAttribute = QualityAttribute("SomethingOthersa")
+        rule = Rule("IF (Internal_Coupling IS high) and (External_Coupling IS high) THEN (SomethingsElse IS high)")
+        parser1.currentQualityAttribute.QARule(rule)
+        
+        error, txt = parser1._extractVariables(rule)
+               
+        self.assertEqual(error, False, "Returns no error")
+        
+        error, txt = parser1._ruleConsistentWithQA(parser1.currentQualityAttribute, rule)
         
 if __name__ == '__main__':
     unittest.main()

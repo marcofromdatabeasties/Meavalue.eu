@@ -22,6 +22,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+import uuid
 from BMSDSL.states.State import State
 from BMSDSL.states.RunErrorState import DSLRunError
 
@@ -30,6 +31,7 @@ class Rule(State):
     def __init__(self, rule):
         self.rule = rule
         self.tag = "Rule:"
+        self.name = uuid.uuid4()
         
     def transition(self):
         if (len(self.rules)):

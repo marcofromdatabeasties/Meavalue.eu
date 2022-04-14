@@ -46,10 +46,9 @@ from BMSDSL.states.RunErrorState import DSLRunError
 
 class Behaviour(State):
     
-    def __init__(self, name, markers = {}, sources= {}):
+    def __init__(self, name):
         self.name = name
-        self.markers = markers
-        self.sources = sources
+        self.markers = {}
         self.tag = "Behaviour:"
     #transition() return the markers associated with this profession in the
     #DSl. At least one marker should be present. When none is supplied while
@@ -62,3 +61,9 @@ class Behaviour(State):
         
     def addMarker(self, marker):
         self.markers[marker.giveName()] = marker
+        
+    def hasMarker(self, markerName):
+        return markerName in self.markers
+        
+    def getMarker(self, markerName):
+        return self.markers[markerName]

@@ -25,19 +25,19 @@ from BMSDSL.states.State import State
 from BMSDSL.states.RunErrorState import DSLRunError
 
 class QualityAttribute(State):
-    def __init__(self, name, rule="", sources={}):
+    def __init__(self, name):
         self.name = name
-        self.rule = rule
-        self.sources = sources
+        self.rules = []
         self.tag = "QualityAttribute:"
     #transition() return the measurements associated with this profession in the
     #DSl. At least one QualityAttribute should be present. When none is supplied while
     #processing a error is returned.
     def transition(self):
-        if (self.rule != None):
-            return False, self.rule
+        if len(self.rules):
+            return False, self.rules
         else:
             return True, DSLRunError("No measurements defined")
         
-    def addRule(self, rule):
-        self.rule = rule
+    def QARule(self, rule):
+        if (rule not in self.rules):
+            self.rules.append(rule)

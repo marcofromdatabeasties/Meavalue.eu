@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 
- Loads a BMS from a file that contains it. This file is executable.
+ Loads a BMS from a file that contains it. This file is executable. Using  Takagi-Sugeno Rules for now.
  BMS example:
      Profession: "Programmer"
              Behaviour: "Write code of good quality"
@@ -49,12 +49,16 @@ from .states.Quality import QualityAttribute
 from .states.Rules import Rule
 
 class BMSDSLParser:
-    tags = ["Profession", "Behaviour", "Marker", "Source", "APA", "Rule", "QualityAttribute" ]
-    currentProfession = None
-    currentBehaviour = None
-    currentMarker = None
-    currentQualityAttribute = None
-    currentRule = None
+    
+    def __init__(self, currentProfession = None ):    
+        self.tags = ["Profession", "Behaviour", "Marker", "Source", "APA", "Rule", "QualityAttribute" ]
+        self.currentProfession = currentProfession
+        self.currentBehaviour = None
+        self.currentMarker = None
+        self.currentQualityAttribute = None
+        self.currentRule = None
+        self.variables = []
+        self.results = []
     
     def loadFile(self, name):
         text_file = open(name, "r")
@@ -63,12 +67,37 @@ class BMSDSLParser:
     def parseString(self, raw):    
         content = self.splitStringInStates(raw)
         for idx, state in enumerate(content):
-            if (state in self.tags):                                                   
-                self._snifAndProcessProfession(state, content, idx)
+            remarks = []
+            if (state in self.tags):
+                allResult = False
+                
+                result, txt = self._snifAndProcessProfession(state, content, idx)
+                allResult = allResult or result
+                if (result):
+                    remarks.append(txt)
+                
                 self._snifAndProcessBehaviour( state, content, idx)
+                allResult = allResult or result
+                if (result):
+                    remarks.append(txt)
+
                 self._snifAndProcessMarker(state, content, idx)
+                allResult = allResult or result
+                if (result):
+                    remarks.append(txt)
+
                 self._snifAndProcessQA(state, content, idx)
+                allResult = allResult or result
+                if (result):
+                    remarks.append(txt)
+
                 self._snifAndProcessRule(state, content, idx)
+                allResult = allResult or result
+                if (result):
+                    remarks.append(txt)
+                    
+                
+        return allResult, remarks
                 
     def splitStringInStates(self, raw):
         result = re.split(":|\n", raw)
@@ -92,8 +121,11 @@ class BMSDSLParser:
                 return True, format("Behaviour %s defined but no profession declared first.", content[idx + 1])
             else:
                 self.currentMarker == None
-                self.currentBehaviour = Behaviour(content[idx + 1])
-                self.currentProfession.addBehaviour(self.currentBehaviour)
+                if (self.currentProfession.hasBehaviour(content[idx + 1])):
+                    self.currentBehaviour = self.currentProfession.getBehaviour(content[idx + 1])
+                else:
+                    self.currentBehaviour = Behaviour(content[idx + 1])
+                    self.currentProfession.addBehaviour(self.currentBehaviour)
                 return False, ""                                       
     
     def _snifAndProcessMarker(self, state, content, idx):
@@ -101,8 +133,11 @@ class BMSDSLParser:
             if (self.currentProfession == None or self.currentBehaviour == None):
                 return True, format("Marker %s defined but no profession and behaviour declared first.", content[idx + 1])
             else:
-                self.currentMarker = Marker(content[idx + 1])
-                self.currentBehaviour.addMarker(self.currentMarker)
+                if (self.currentBehaviour.hasMarker(content[idx + 1])):
+                    self.currentMarker = self.currentBehaviour.getMarker(content[idx + 1])
+                else:
+                    self.currentMarker = Marker(content[idx + 1])
+                    self.currentBehaviour.addMarker(self.currentMarker)
                 return False, "" 
                 
     def _snifAndProcessQA(self, state, content, idx):
@@ -110,22 +145,61 @@ class BMSDSLParser:
             if (self.currentProfession == None or self.currentBehaviour == None or self.currentMarker == None):
                 return True, format("QualityAttribute %s defined but no profession, behaviour, and marker declared first.", content[idx + 1])
             else:
-                self.currentQualityAttribute = QualityAttribute(content[idx + 1])
-                self.currentMarker.addQualityAttribute(self.currentQualityAttribute)
+                if (self.currentMarker.hasQualityAttribute(content[idx + 1])):
+                    self.currentQualityAttribute = self.currentMarker.getQualityAttribute(content[idx + 1])
+                else:
+                    self.currentQualityAttribute = QualityAttribute(content[idx + 1])
+                    self.currentMarker.addQualityAttribute(self.currentQualityAttribute)
                 return False, "" 
         
     def _snifAndProcessRule(self, state, content, idx):
         if (self.currentProfession == None or self.currentBehaviour == None or self.currentMarker == None or self.currentQualityAttribute == None):
-                return True, format("Rule %s defined but no profession, behaviour, marker, or Quality Attribute declared first.", content[idx + 1])
+                return True, "Rule {} defined but no profession, behaviour, marker, or Quality Attribute declared first.".format( content[idx + 1])
         else:
             self.currentRule = Rule(content[idx + 1])
-            self.currentQualityAttribute.addRule(self.currentRule)
-            return False, ""
+            self.currentQualityAttribute.QARule(self.currentRule)
+            error, txt = self._extractVariables(self.currentRule)
+            if not error:
+                return self._ruleConsistentWithQA(self.currentQualityAttribute, self.currentRule)
+            else:
+                return error, txt;
             
     def parsefile(self, name):
         raw = self.loadFile(name)
-        self.parseString(raw)
         
+        return self.variables, self.parseString(raw)
+    
+    def _extractVariables(self, rule):
+        ruleParts = re.split(r"THEN", rule.rule)
+        if (len(ruleParts) == 2):
+            inp = ruleParts[0]
+            outp = ruleParts[1]
+            
+            defines = re.findall(r"(\w+ IS \w+)", inp)
+            for defn in defines:
+                names = re.split(r" IS .*", defn)
+                for name in names:
+                    if len(name) and name not in self.variables:
+                        self.variables.append(name)
+            if not len(self.variables):
+                return True, "If should contain inputs (either QA or Measurements)"
+            
+            defines = re.findall(r"(\w+ IS \w+)", outp)
+            if len(defines)>1:
+                return True, "More than one assignment to QA is not allowed."
+            else:
+                names = re.split(r" IS .*", defines[0])
+                self.results.append(names[0]);
+                return False, ""                        
+        else:
+            return True, "Rule should contain one THEN"
+        
+    #needs extract variables to run first    
+    def _ruleConsistentWithQA(self, QA, Rule):
+        if QA.giveName() not in self.results:
+            return True, "Rule should contain the result {} of a QA".format( QA.giveName())
+        else:
+            return False, ""            
 
 
 if __name__ == '__main__':

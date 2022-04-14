@@ -47,13 +47,10 @@ from BMSDSL.states.RunErrorState import DSLRunError
  
 
 class Profession(State):
-    behaviours = {}
-    sources = {}
     
-    def __init__(self, name, behaviours = {}, sources={}):
+    def __init__(self, name):
         self.name = name
-        self.behaviours = behaviours
-        self.sources = sources
+        self.behaviours = {}
         self.tag = "Profession:"
     
     #transition() return the behaviours associated with this profession in the
@@ -68,3 +65,11 @@ class Profession(State):
             return True, error
     def addBehaviour(self, behaviour):
         self.behaviours[behaviour.giveName()] = behaviour 
+        
+    #sniff before you leap 
+    def getBehaviour(self, behaviourName):
+        return self.behaviours[behaviourName]
+   
+    #returns if a behaviour wih the propername is present.
+    def hasBehaviour(self, behaviourName):
+        return behaviourName in self.behaviours

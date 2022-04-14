@@ -25,10 +25,9 @@ from BMSDSL.states.RunErrorState import DSLRunError
 
 class Marker (State):
     
-    def __init__(self, name, qualityAttributes={}, sources={}):
+    def __init__(self, name):
         self.name = name
-        self.qualityAttributes = qualityAttributes
-        self.sources = sources
+        self.qualityAttributes = {}
         self.tag = "Marker:"
       
     #transition() return the QA's associated with this profession in the
@@ -42,3 +41,9 @@ class Marker (State):
         
     def addQualityAttribute(self, qualityAttribute):
         self.qualityAttributes[qualityAttribute.giveName()] = qualityAttribute
+        
+    def hasQualityAttribute(self, qualityAttributeName):
+        return qualityAttributeName in self.qualityAttributes
+    
+    def getQualityAttribute(self, qualityAttributeName):
+        return self.qualityAttributes[qualityAttributeName]
